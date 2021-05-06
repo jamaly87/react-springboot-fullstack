@@ -1,21 +1,46 @@
 import {useState, useEffect} from 'react';
 import {getAllStudents} from "./client";
-import {Layout, Menu, Breadcrumb} from 'antd';
+import {Layout, Menu, Breadcrumb, Table, Spin, Empty} from 'antd';
 import {
     DesktopOutlined,
     PieChartOutlined,
     FileOutlined,
     TeamOutlined,
     UserOutlined,
+    LoadingOutlined,
 } from '@ant-design/icons';
 import './App.css';
 
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
+const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
+const columns = [
+    {
+        title: 'Id',
+        dataIndex: 'id',
+        key: 'id',
+    },
+    {
+        title: 'Name',
+        dataIndex: 'name',
+        key: 'name',
+    },
+    {
+        title: 'Email',
+        dataIndex: 'email',
+        key: 'email',
+    },
+    {
+        title: 'Gender',
+        dataIndex: 'gender',
+        key: 'gender',
+    },
+];
 
 function App() {
     const [students, setStudents] = useState([]);
     const [collapsed, setCollapsed] = useState(false);
+    const [fetching, setFetching] = useState(true);
 
     const fetchStudents = () =>
         getAllStudents()
@@ -23,6 +48,7 @@ function App() {
             .then(data => {
                 console.log(data);
                 setStudents(data);
+                setFetching(false);
             })
 
     //Run the below function once when the component is mounted
@@ -31,12 +57,26 @@ function App() {
         fetchStudents();
     }, []);
 
-    if(students.length<=0){
-        return <p>no data!</p>;
-    }
+   const renderStudent = () =>{
+       if(fetching){
+           return <Spin indicator={antIcon} />
+       }
+       if (students.length <= 0 ){
+           return <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+       }
+       return <Table
+           dataSource={students}
+           columns={columns}
+           bordered
+           title={() => 'Students'}
+           pagination={{ pageSize: 50 }}
+           scroll={{ y: 240 }}
+           rowkey = {(student)=>student.id}
+       />;
+   }
 
     return <Layout style={{ minHeight: '100vh' }}>
-        <Sider collapsible collapsed={setCollapsed} onCollapse={this.onCollapse}>
+        <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed}>
             <div className="logo" />
             <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline">
                 <Menu.Item key="1" icon={<PieChartOutlined />}>
@@ -67,10 +107,10 @@ function App() {
                     <Breadcrumb.Item>Bill</Breadcrumb.Item>
                 </Breadcrumb>
                 <div className="site-layout-background" style={{ padding: 24, minHeight: 360 }}>
-                    Bill is a cat.
+                    {renderStudent()}
                 </div>
             </Content>
-            <Footer style={{ textAlign: 'center' }}>Ant Design ©2018 Created by Ant UED</Footer>
+            <Footer style={{ textAlign: 'center' }}> By Hamza Ali Aljamaly - 2021 </Footer>
         </Layout>
     </Layout>
 }
