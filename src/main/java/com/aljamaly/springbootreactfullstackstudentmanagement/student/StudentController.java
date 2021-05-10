@@ -1,23 +1,27 @@
 package com.aljamaly.springbootreactfullstackstudentmanagement.student;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.List;
-
+@AllArgsConstructor
 @RestController
 @RequestMapping(path = "api/v1/students")
 public class StudentController {
 
+    private final StudentService studentService;
+
     @GetMapping
     public List<Student> getAllStudents(){
-        List<Student> studentsList = Arrays.asList(
-                new Student(1L, "Mina", "mina@jamaly.com", Gender.FEMALE),
-                new Student(2L, "Hamza", "hamza@jamaly.com", Gender.MALE)
-                );
-        return studentsList;
+        return studentService.getAllStudents();
     }
+
+    @PostMapping
+    public void addStudent (@RequestBody Student student){
+        studentService.addStudent(student);
+    }
+
+
 
 }
